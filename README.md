@@ -16,3 +16,4 @@
 
 1. [**8-01** - Git](./8-01/README.md)
 2. [**8-02** - Что такое DevOps. CI/CD](./8-02/README.md)
+3. [**8-03** - Gitlab](./8-03/README.md)
