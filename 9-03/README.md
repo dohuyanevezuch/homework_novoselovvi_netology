@@ -75,7 +75,7 @@
 
 ![task3_pic3](./img/03/task3_pic3.png)
 
-Далее добавляем в `/etc/zabbix/zabbix_agentd.conf` содержимое параметра пользователя `UserParameter=novoselovvi.cpu.usage,free | grep Mem | awk '{printf "%.0f\n", $3/$2 * 100.0}'` для своей реализации загруженности процессора в процентах.
+Далее добавляем в `/etc/zabbix/zabbix_agentd.conf` содержимое параметра пользователя `UserParameter=novoselovvi.cpu.usage,grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {printf "%.0f\n", usage}'` для своей реализации загруженности процессора в процентах.
 
 Перезагружаем службу агента и смотрим в Latest Data
 
