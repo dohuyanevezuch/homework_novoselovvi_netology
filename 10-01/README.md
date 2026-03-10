@@ -47,6 +47,14 @@ standby 1 preempt
 - Настройте Keepalived так, чтобы он запускал данный скрипт каждые 3 секунды и переносил виртуальный IP на другой сервер, если bash-скрипт завершался с кодом, отличным от нуля (то есть порт веб-сервера был недоступен или отсутствовал index.html). Используйте для этого секцию vrrp_script
 - На проверку отправьте получившейся bash-скрипт и конфигурационный файл keepalived, а также скриншот с демонстрацией переезда плавающего ip на другой сервер в случае недоступности порта или файла index.html
 
+#### Файлы к заданию
+
+[keepalived config MASTER](./files/02/MASTER-config/keepalived.conf)
+
+[keepalived config BACKUP](./files/02/BACKUP-config/keepalived.conf)
+
+[Script](./files/02/keepalived-script.sh)
+
 #### Выполнение задания
 
 1. Установили keepalived и nginx на обе ВМ
@@ -153,14 +161,5 @@ nginx включен на обеих ВМ, файлы в целости
 Как видим выполнение скрипта завершается с кодом 1, и перенаправляет на backup сервер
 
 Если запустим службу nginx, ip опять перейдет на сервер Master
-
-##### Файлы конфигураций и скрипт:
-
-[keepalived config MASTER](./files/02/MASTER-config/keepalived.conf)
-
-[keepalived config BACKUP](./files/02/BACKUP-config/keepalived.conf)
-
-[Script](./files/02/keepalived-script.sh)
-
 
 ---
