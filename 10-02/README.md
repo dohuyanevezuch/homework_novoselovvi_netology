@@ -166,3 +166,71 @@ backend web_servers
 
 
 ---
+
+### Задание 3
+
+#### Текст задания
+
+- Запустите три simple python сервера на своей виртуальной машине на разных портах
+- Настройте балансировку Weighted Round Robin на 7 уровне, чтобы первый сервер имел вес 2, второй - 3, а третий - 4
+- HAproxy должен балансировать только тот http-трафик, который адресован домену example.local
+- На проверку направьте конфигурационный файл haproxy, скриншоты, где видно перенаправление запросов на разные серверы при обращении к HAProxy c использованием домена example.local и без него.
+
+#### файлы к заданию
+
+[haproxy.cfg](./files/03/haproxy.cfg)
+
+[nginx.conf](./files/03/nginx-task3-conf)
+
+#### Выполнение задания
+
+HaProxy конфиг
+
+```config
+...
+rontend task2
+        mode http
+        bind :8000
+        default_backend web_servers
+
+backend web_servers
+        mode http
+        balance roundrobin
+        option httpchk
+        http-check send meth GET uri /index.html
+        server s1 127.0.0.1:8080 weight 2 check inter 3s
+        server s2 127.0.0.1:8081 weight 3 check inter 3s
+        server s3 127.0.0.1:8082 weight 4 check inter 3s
+...
+```
+
+nginx конфиг
+
+```config
+server {
+    listen 80;
+    server_name localhost;
+
+    location ~* \.png$ {
+        root /var/www/images;
+        try_files $uri =404;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+```
+
+
+Работа связки
+
+![task3_pic1](./img/03/task3_pic1.png)
+
+
+
+---
