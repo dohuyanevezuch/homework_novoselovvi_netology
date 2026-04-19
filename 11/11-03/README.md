@@ -388,6 +388,10 @@ networks:
     └── nginx.conf
 ```
 
+Запустим docker-compose
+
+![task4_pic2](./img/04/task4_pic2.png)
+
 Заполним логи командой
 
 ```bash
@@ -396,6 +400,6 @@ for i in {1..33}; do curl -s "http://localhost:8080/?from=filebeat_test_$i" > /d
 
 И в Dataview видим как те самые 33 лога записались
 
-![task4_pic2](./img/04/task4_pic2.png)
+![task4_pic3](./img/04/task4_pic3.png)
 
 ---
