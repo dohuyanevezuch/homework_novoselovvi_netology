@@ -388,18 +388,16 @@ networks:
     └── nginx.conf
 ```
 
-Запустим docker-compose
-
-![task4_pic2](./img/04/task4_pic2.png)
+Запустим docker-compose и добавим новый dataview `nginx-filebeat-*`
 
 Заполним логи командой
 
 ```bash
-for i in {1..33}; do curl -s "http://localhost:8080/?from=filebeat_test_$i" > /dev/null; sleep 0.3; done
+for i in {1..22}; do curl -s "http://localhost:8080/?from=filebeat_test_$i" > /dev/null; sleep 0.3; done
 ```
 
-И в Dataview видим как те самые 33 лога записались
+И в Dataview видим как те самые 22 лога записались
 
-![task4_pic3](./img/04/task4_pic3.png)
+![task4_pic2](./img/04/task4_pic2.png)
 
 ---
