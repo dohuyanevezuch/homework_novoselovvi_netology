@@ -260,7 +260,37 @@ docker exec -it rmq2 rabbitmqctl start_app
 
 ![task3_pic4](./img/03/task3_pic4.png)
 
-Повторноый запуск `producer.py`
+Повторноый запуск `producer.py` (немного исправленный)
+
+```python
+# producer.py
+
+#!/usr/bin/env python
+# coding=utf-8
+import pika
+
+credentials = pika.PlainCredentials('netology', 'netology')
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(
+        '46.243.210.177',
+        5672,
+        '/',
+        credentials
+    )
+)
+channel = connection.channel()
+channel.queue_declare(queue='netology', durable=True)
+for  i in range(25):
+        message = f"Hello Netology! {i}"
+        channel.basic_publish(
+                exchange='',
+                routing_key='netology',
+                body=message
+        )
+
+connection.close()
+
+```
 
 ![task3_pic5](./img/03/task3_pic5.png)
 
