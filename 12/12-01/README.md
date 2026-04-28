@@ -80,4 +80,61 @@
 #### Выполнение задания
 
 
+SQL Скрипт
+
+```sql
+CREATE TABLE projects (
+    id int PRIMARY KEY,
+    name varchar(255) NOT NULL
+);
+
+CREATE TABLE division_type (
+    id int PRIMARY KEY,
+    name varchar(255) NOT NULL
+);
+
+CREATE TABLE division (
+    id int PRIMARY KEY,
+    name varchar(255) NOT NULL,
+    type_id int NOT NULL,
+    foreign key (type_id) references division_type(id)
+);
+
+CREATE TABLE posts (
+    id int PRIMARY KEY,
+    name varchar(255) NOT NULL
+);
+
+CREATE TABLE filials (
+    id int PRIMARY KEY,
+    name varchar(255) NOT NULL
+);
+
+CREATE TABLE staff (
+    id int PRIMARY KEY,
+    name varchar(255) NOT NULL,
+    salary decimal NOT NULL,
+    date_of_hiring date NOT NULL,
+    division_id int NOT NULL,
+    post_id int NOT NULL,
+    filial_id int NOT NULL,
+    foreign key (division_id) references division(id),
+    foreign key (post_id) references posts(id),
+    foreign key (filial_id) references filials(id)
+);
+
+CREATE TABLE staff_in_project (
+    id int PRIMARY KEY,
+    staff_id int NOT NULL,
+    project_id int NOT NULL,
+    foreign key (staff_id) references staff(id),
+    foreign key (project_id) references projects(id)
+);
+
+```
+
+Результат работы скрипта
+
+![task2_pic1](./img/02/task2_pic1.png)
+
 ---
