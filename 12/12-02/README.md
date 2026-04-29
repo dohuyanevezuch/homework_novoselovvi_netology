@@ -69,7 +69,7 @@ docker exec -it netology_sql mysql -u sys_test -p
 CREATE DATABASE sakila;
 ```
 
-Восстановим домп в БД
+Восстановим дамп в БД
 
 ```bash
 docker exec -i netology_sql mysql -u sys_test -p'QAZwsx555' sakila < sakila-schema.sql
@@ -78,11 +78,17 @@ docker exec -i netology_sql mysql -u sys_test -p'QAZwsx555' sakila < sakila-data
 
 > [!NOTE]
 > При вводе команд
+>
 > `docker exec -i netology_sql mysql -u sys_test -p sakila < sakila-schema.sql`
+>
 > `docker exec -i netology_sql mysql -u root -p sakila < sakila-schema.sql`
+>
 > Я получал ошибки
+>
 > `Enter password: ERROR 1045 (28000): Access denied for user 'sys_test'@'localhost' (using password: YES)`
+>
 > `Enter password: ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)`
+>
 > Пришлось явно задавать пароль (Можно было по другому, но я выбрал самый быстрый вариант)
 
 ```sql
