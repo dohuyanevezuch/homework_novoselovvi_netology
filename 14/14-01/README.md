@@ -4,6 +4,10 @@
 
 ![check_pic1](./img/check_pic1.png)
 
+
+> [!TIP]
+> Код заданий находиться в каталоге [files](./files/)
+
 ### Задание 1
 
 #### Текст задания
@@ -112,31 +116,151 @@ environment:
 
 #### Выполнение задания
 
+1. Создадим ВМ в yandex cloud с помощью terraform
 
+> [!NOTE]
+> Передача токена осуществлялась через YC CLI
 
----
+```terraform
+terraform {
+  required_providers {
+    yandex = {
+      source = "yandex-cloud/yandex"
+      version = "0.213.0"
+    }
+  }
+}
 
-### Задание 3*
+provider yandex {
+    zone = var.yc-zone
+}
 
-#### Текст задания
+variable "yc-zone" {
+  type = string
+  default = "ru-central1-b"
+}
 
-1. Установите opentofu(fork terraform с лицензией Mozilla Public License, version 2.0) любой версии
-2. Попробуйте выполнить тот же код с помощью tofu apply, а не terraform apply.
+resource "yandex_compute_instance" "vm-task2"{
+    name = "novoselovi-terraform"
+    zone = var.yc-zone
+    platform_id = "standard-v3"
+    scheduling_policy {
+        preemptible = true
+    }
+    resources {
+        cores = 2
+        memory = 2
+    }
 
-#### Выполнение задания
+    boot_disk {
+        disk_id = yandex_compute_disk.disk1.id
+    }
 
+    network_interface {
+        subnet_id = data.yandex_vpc_subnet.default.id
+        nat = true
+    }
 
+    metadata = {
+        ssh-keys = "ubuntu:${file("~/.ssh/id_ed25519_YC.pub")}"
+    }
+}
 
----
+resource "yandex_compute_disk" "disk1" {
+    image_id = "fd83esfomhq25p2ono90"
+    zone = var.yc-zone
+    type = "network-hdd"
+    size = 20
+}
 
-### Задание 4
+data "yandex_vpc_network" "default" {
+  name = "default"
+}
 
-#### Текст задания
+data "yandex_vpc_subnet" "default" {
+  name = "default-ru-central1-b"
+}
+```
 
+2. Подключились и установили Docker
 
+3. Дополним `main.tf`
 
-#### Выполнение задания
+```diff
+terraform {
+  required_providers {
+    yandex = {
+      source = "yandex-cloud/yandex"
+      version = "0.213.0"
+    }
 
++    docker = {
++      source = "kreuzwerker/docker"
++      version = "4.5.0"
++    }
+  }
+}
 
++provider docker {
++  host = "ssh://ubuntu@${yandex_compute_instance.vm-task2.network_interface[0].nat_ip_address}:22"
++  ssh_opts = ["-i", "~/.ssh/id_ed25519_YC"]
+}
+```
+
+4. Дополним код, только уже и немного наведя порядок в файлах: [файлы тут](./files/02/)
+
+В крации:
+
+- Добавили провайдера рандом
+- добавили 2 ресурса `random_password`, ресурс `docker_image` и ресурс `docker_container`
+
+```hcl
+...
+
+    random = {
+      source = "hashicorp/random"
+      version = "3.6"
+    }
+  }
+}
+
+resource "random_password" "sql_pass_root" {
+  length = 16
+  special = false
+}
+
+resource "random_password" "sql_pass_user" { 
+  length = 16
+  special = false
+}
+
+resource "docker_image" "mysql" {
+  name = "mysql:8"
+}
+
+resource "docker_container" "mysql" {
+  image = docker_image.mysql.name
+  name = "mysql_${random_password.sql_pass_root.result}"
+  restart = "always"
+
+  env = [
+    "MYSQL_ROOT_PASSWORD=${random_password.sql_pass_root.result}",
+    "MYSQL_DATABASE=wordpress",
+    "MYSQL_USER=wordpress",
+    "MYSQL_PASSWORD=${random_password.sql_pass_user.result}",
+    "MYSQL_ROOT_HOST=%"
+  ]
+  
+  ports {
+    internal = 3306
+    external = 3306
+    ip = "127.0.0.1"
+  }
+}
+```
+
+5. Подключились и выполнили команду `env`
+
+![task2_pic1](./img/02/task2_pic1.png)
 
 ---
