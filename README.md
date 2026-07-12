@@ -63,3 +63,4 @@
 ### 14. Облачная инфраструктура. Terraform
 
 1. [**14-01** - Введение в Terraform](./14/14-01/README.md)
+2. [**14-02** - Основы Terraform. Yandex Cloud](./14/14-02/README.md)
