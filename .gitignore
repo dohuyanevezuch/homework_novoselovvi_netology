@@ -3,6 +3,7 @@
 .terraform*
 
 !.terraformrc
+!terraform.tfvars
 
 # .tfstate files
 *.tfstate
