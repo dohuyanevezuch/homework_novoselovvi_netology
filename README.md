@@ -64,3 +64,4 @@
 
 1. [**14-01** - Введение в Terraform](./14/14-01/README.md)
 2. [**14-02** - Основы Terraform. Yandex Cloud](./14/14-02/README.md)
+3. [**14-03** - Управляющие конструкции в коде Terraform](./14/14-03/README.md)
