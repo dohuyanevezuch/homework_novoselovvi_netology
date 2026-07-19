@@ -1,7 +1,7 @@
 # Домашнее задание к занятию `Продвинутые методы работы с Terraform` - `Новоселов Виктор Иванович`
 
 > [!TIP]
-> Файлы задания - [ТУТ](https://github.com/dohuyanevezuch/homework_novoselovvi_netology/tree/terraform-03)
+> Файлы задания - [ТУТ](https://github.com/dohuyanevezuch/homework_novoselovvi_netology/tree/terraform-04)
 
 ## Задание 1
 
