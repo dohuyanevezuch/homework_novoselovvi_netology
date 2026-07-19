@@ -1,65 +1,110 @@
-# Домашние задания `Нетологии` по курсу `DevOps инженер с нуля`
+# Домашнее задание к занятию `Продвинутые методы работы с Terraform` - `Новоселов Виктор Иванович`
 
-> [!NOTE]
-> Этот репозиторий предназначен для хранения решений домашних заданий курса «DevOps инженер с нуля» (Netology).
+> [!TIP]
+> Файлы задания - [ТУТ](https://github.com/dohuyanevezuch/homework_novoselovvi_netology/tree/terraform-04)
+
+## Задание 1
+
+### Текст задания
+
+1. Возьмите из [демонстрации к лекции готовый код](https://github.com/netology-code/ter-homeworks/tree/main/04/demonstration1) для создания с помощью двух вызовов remote-модуля -> двух ВМ, относящихся к разным проектам(marketing и analytics) используйте labels для обозначения принадлежности.  В файле cloud-init.yml необходимо использовать переменную для ssh-ключа вместо хардкода. Передайте ssh-ключ в функцию template_file в блоке vars ={} .
+Воспользуйтесь [**примером**](https://grantorchard.com/dynamic-cloudinit-content-with-terraform-file-templates/). Обратите внимание, что ssh-authorized-keys принимает в себя список, а не строку.
+3. Добавьте в файл cloud-init.yml установку nginx.
+4. Предоставьте скриншот подключения к консоли и вывод команды ```sudo nginx -t```, скриншот консоли ВМ yandex cloud с их метками. Откройте terraform console и предоставьте скриншот содержимого модуля. Пример: > module.marketing_vm
+
+### Выполнение задания
+
+![task1_pic1](./img/01/task1_pic1.png)
+
+![task1_pic2](./img/01/task1_pic2.png)
+
+![task1_pic3](./img/01/task1_pic3.png)
+
+![task1_pic4](./img/01/task1_pic4.png)
+
+![task1_pic5](./img/01/task1_pic5.png)
 
 
-**Студент:** Новоселов Виктор Иванович
+---
 
-**Группа:** FOPSJ-45
+## Задание 2
+
+### Текст задания
+
+1. Напишите локальный модуль vpc, который будет создавать 2 ресурса: **одну** сеть и **одну** подсеть в зоне, объявленной при вызове модуля, например: ```ru-central1-a```.
+2. Вы должны передать в модуль переменные с названием сети, zone и v4_cidr_blocks.
+3. Модуль должен возвращать в root module с помощью output информацию о yandex_vpc_subnet. Пришлите скриншот информации из terraform console о своем модуле. Пример: > module.vpc_dev  
+4. Замените ресурсы yandex_vpc_network и yandex_vpc_subnet созданным модулем. Не забудьте передать необходимые параметры сети из модуля vpc в модуль с виртуальной машиной.
+5. Сгенерируйте документацию к модулю с помощью terraform-docs.
+ 
+Пример вызова
+
+```
+module "vpc_dev" {
+  source       = "./vpc"
+  env_name     = "develop"
+  zone = "ru-central1-a"
+  cidr = "10.0.1.0/24"
+}
+```
+
+### Выполнение задания
+
+Добавили модуль, применили его в создании ВМ
+
+![task2_pic1](./img/02/task2_pic1.png)
+
+---
+
+## Задание 3
+
+### Текст задания
+
+1. Выведите список ресурсов в стейте.
+2. Полностью удалите из стейта модуль vpc.
+3. Полностью удалите из стейта модуль vm.
+4. Импортируйте всё обратно. Проверьте terraform plan. Значимых(!!) изменений быть не должно.
+Приложите список выполненных команд и скриншоты процессы.
+
+### Выполнение задания
+
+```hcl
+terraform state list
+terraform state show 'module.vpc.yandex_vpc_network.develop' #Сохраняем id
+terraform state show 'module.vpc.yandex_vpc_subnet.develop' #Сохраняем id
+terraform state show 'module.marketing_vm.yandex_compute_instance.vm[0]' #Сохраняем id
+terraform state show 'module.analytics_vm.yandex_compute_instance.vm[0]' #Сохраняем id
+terraform state rm 'module.vpc' # Удалим модуль
+terraform state rm 'module.marketing_vm' # Удалим модуль
+terraform state rm 'module.analytics_vm' # Удалим модуль
+terraform state list #Убедились в удалении
+terraform import 'module.vpc.yandex_vpc_network.develop' 'enpl6uuuomirb81r1bau' # Импортируем
+terraform import 'module.vpc.yandex_vpc_subnet.develop' 'e9bhasl1jrivdvvkfg47' # Импортируем
+terraform import 'module.marketing_vm.yandex_compute_instance.vm[0]' 'fhmlfudl13s3bcukt551' # Импортируем
+terraform import 'module.analytics_vm.yandex_compute_instance.vm[0]' 'fhm0q7jtkjs96r8pm07f' # Импортируем
+terraform state list # Убедились в добавлении
+terraform plan # Проверка
+```
+
+![task3_pic1](./img/03/task3_pic1.png)
+
+![task3_pic2](./img/03/task3_pic2.png)
+
+![task3_pic3](./img/03/task3_pic3.png)
+
+![task3_pic4](./img/03/task3_pic4.png)
+
+![task3_pic5](./img/03/task3_pic5.png)
+
+![task3_pic6](./img/03/task3_pic6.png)
+
+![task3_pic7](./img/03/task3_pic7.png)
+
+![task3_pic8](./img/03/task3_pic8.png)
+
+![task3_pic9](./img/03/task3_pic9.png)
+
+![task3_pic10](./img/03/task3_pic10.png)
 
 
-
-## Список домашних заданий
-
-### 8. Автоматизация и CI/СD
-
-1. [**08-01** - Git](./08//08-01/README.md)
-2. [**08-02** - Что такое DevOps. CI/CD](./08//08-02/README.md)
-3. [**08-03** - Gitlab](./08//08-03/README.md)
-
-### 9. Мониторинг
-
-1. [**09-01** - Обзор систем ИТ-мониторинга](./09/09-01/README.md)
-2. [**09-02** - Система мониторинга Zabbix](./09/09-02/README.md)
-3. [**09-03** - Система мониторинга Zabbix. Часть 2](./09/09-03/README.md)
-
-### 10. Отказоустойчивость
-
-1. [**10-01** - Disaster recovery и Keepalived](./10/10-01/README.md)
-2. [**10-02** - Кластеризация и балансировка нагрузки](./10/10-02/README.md)
-3. [**10-03** - Резервное копирование](./10/10-03/README.md)
-4. [**10-04** - Отказоустойчивость в облаке](./10/10-04/README.md)
-
-### 11. Системы хранения и передачи данных
-
-1. [**11-01** - Базы данных, их типы](./11/11-01/README.md)
-2. [**11-02** - Кеширование Redis/memcached](./11/11-02/README.md)
-3. [**11-03** - ELK](./11/11-03/README.md)
-4. [**11-04** - Очереди RabbitMQ](./11/11-04/README.md)
-
-### 12. Реляционные базы данных и администрирование баз данных
-
-1. [**12-01** - Базы данных](./12/12-01/README.md)
-2. [**12-02** - Работа с данными (DDL/DML)](./12/12-02/README.md)
-3. [**12-03** - SQL. Часть 1](./12/12-03/README.md)
-4. [**12-04** - SQL. Часть 2](./12/12-04/README.md)
-5. [**12-05** - Индексы](./12/12-04/README.md)
-6. [**12-06** - Репликация и масштабирование. Часть 1](./12/12-06/README.md)
-7. [**12-07** - Репликация и масштабирование. Часть 2](./12/12-07/README.md)
-8. [**12-08** - Резервное копирование баз данных](./12/12-08/README.md)
-9. [**12-09** - Базы данных в облаке](./12/12-09/README.md)
-
-### 13. Виртуализация и контейнеризация
-
-1. [**13-01** - Введение в виртуализацию. Типы и функции гипервизоров. Обзор рынка вендоров и областей применения](./13/13-01/README.md)
-2. [**13-02** - Применение принципов IaaC в работе с виртуальными машинами](./13/13-02/README.md)
-3. [**13-03** - Оркестрация группой Docker контейнеров на примере Docker Compose.](./13/13-03/README.md)
-4. [**13-04** - Практическое применение Docker. Часть 2](./13/13-04/README.md)
-5. [**13-05** - Оркестрация кластером Docker контейнеров на примере Docker Swarm.](./13/13-05/README.md)
-
-### 14. Облачная инфраструктура. Terraform
-
-1. [**14-01** - Введение в Terraform](./14/14-01/README.md)
-2. [**14-02** - Основы Terraform. Yandex Cloud](./14/14-02/README.md)
-3. [**14-03** - Управляющие конструкции в коде Terraform](./14/14-03/README.md)
+---
