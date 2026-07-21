@@ -1,0 +1,80 @@
+#cloud-config
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - ca-certificates
+  - curl
+  - jq
+
+write_files:
+  - path: /opt/wordpress/compose.yaml
+    owner: root:root
+    permissions: '0600'
+    content: |
+      services:
+        wordpress:
+          image: ${jsonencode(application_image)}
+          container_name: wordpress
+          restart: unless-stopped
+          ports:
+            - "80:80"
+          environment:
+            WORDPRESS_DB_HOST: ${jsonencode(mysql_endpoint)}
+            WORDPRESS_DB_USER: ${jsonencode(mysql_user)}
+            WORDPRESS_DB_PASSWORD: ${jsonencode(replace(mysql_password, "$", "$$"))}
+            WORDPRESS_DB_NAME: ${jsonencode(mysql_database)}
+
+runcmd:
+  - install -m 0755 -d /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+
+  - |
+    tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF_DOCKER
+    Types: deb
+    URIs: https://download.docker.com/linux/ubuntu
+    Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+    Components: stable
+    Architectures: $(dpkg --print-architecture)
+    Signed-By: /etc/apt/keyrings/docker.asc
+    EOF_DOCKER
+
+  - apt-get update
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - groupadd -f docker
+  - usermod -aG docker ubuntu
+  - systemctl enable --now docker
+
+  - |
+    set -eu
+
+    IAM_TOKEN=""
+    for attempt in $(seq 1 30); do
+      IAM_TOKEN="$(curl --silent --fail \
+        --header Metadata-Flavor:Google \
+        http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token \
+        | jq -r '.access_token // empty')" || true
+
+      if [ -n "$IAM_TOKEN" ]; then
+        break
+      fi
+
+      sleep 5
+    done
+
+    if [ -z "$IAM_TOKEN" ]; then
+      echo "Не удалось получить IAM-токен сервисного аккаунта" >&2
+      exit 1
+    fi
+
+    printf '%s' "$IAM_TOKEN" | docker login \
+      --username iam \
+      --password-stdin \
+      cr.yandex
+
+    cd /opt/wordpress
+    docker compose pull
+    docker compose up -d
+    docker logout cr.yandex || true
