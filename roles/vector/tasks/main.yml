@@ -1,0 +1,51 @@
+---
+- name: Установка зависимостей
+  ansible.builtin.apt:
+    name: "{{ vector_repository_dependencies }}"
+    state: present
+    update_cache: true
+  tags:
+    - packages
+
+- name: Скачивание скрипта установки vector
+  ansible.builtin.get_url:
+    url: "{{ vector_repository_setup_url }}"
+    dest: "{{ vector_repository_setup_path }}"
+    mode: "0755"
+  tags:
+    - repository
+
+- name: Настройка apt
+  ansible.builtin.command:
+    cmd: "{{ vector_repository_setup_path }}"
+    creates: /etc/apt/sources.list.d/vector.list
+  tags:
+    - repository
+
+- name: Установка vector
+  ansible.builtin.apt:
+    name: "{{ vector_package_name }}"
+    state: present
+    update_cache: true
+  tags:
+    - packages
+
+- name: Deploy config
+  ansible.builtin.template:
+    src: vector.yaml.j2
+    dest: "{{ vector_config_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/bin/vector validate --no-environment --config-yaml %s
+  notify: Restart Vector
+  tags:
+    - config
+
+- name: Активация и перезапуск сервиса
+  ansible.builtin.service:
+    name: vector
+    enabled: true
+    state: started
+  tags:
+    - service

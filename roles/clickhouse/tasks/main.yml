@@ -1,0 +1,95 @@
+---
+- name: Установка зависимостей
+  ansible.builtin.apt:
+    name: "{{ clickhouse_repository_dependencies }}"
+    state: present
+    update_cache: true
+  tags:
+    - packages
+
+- name: Скачивание ключа
+  ansible.builtin.get_url:
+    url: "{{ clickhouse_key_url }}"
+    dest: "{{ clickhouse_key_source_path }}"
+    mode: "0644"
+  tags:
+    - repository
+
+- name: Конвертация ключа
+  ansible.builtin.command:
+    cmd: >-
+      gpg --dearmor --yes
+      --output {{ clickhouse_keyring_path }}
+      {{ clickhouse_key_source_path }}
+    creates: "{{ clickhouse_keyring_path }}"
+  tags:
+    - repository
+
+- name: Добавление в apt
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by={{ clickhouse_keyring_path }}
+      arch={{ clickhouse_apt_architecture }}]
+      {{ clickhouse_repository_url }} stable main
+    filename: clickhouse
+    state: present
+  tags:
+    - repository
+
+- name: Установка пакетов
+  ansible.builtin.apt:
+    name: "{{ clickhouse_packages }}"
+    state: present
+    update_cache: true
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tags:
+    - packages
+
+- name: Настройка сети
+  ansible.builtin.template:
+    src: listen.xml.j2
+    dest: /etc/clickhouse-server/config.d/listen.xml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart ClickHouse
+  tags:
+    - config
+
+- name: Активация и перезапуск сервиса
+  ansible.builtin.service:
+    name: clickhouse-server
+    enabled: true
+    state: started
+  tags:
+    - service
+
+- name: Проверка существования таблицы Vector
+  ansible.builtin.command:
+    argv:
+      - clickhouse-client
+      - --query
+      - >-
+        EXISTS TABLE {{ clickhouse_database }}.{{ clickhouse_table }}
+  register: clickhouse_table_exists
+  changed_when: false
+  tags:
+    - database
+
+- name: Создание таблицы для Vector логов
+  ansible.builtin.command:
+    argv:
+      - clickhouse-client
+      - --query
+      - >-
+        CREATE TABLE {{ clickhouse_database }}.{{ clickhouse_table }}
+        (
+          message String,
+          timestamp DateTime DEFAULT now()
+        )
+        ENGINE = MergeTree
+        ORDER BY timestamp
+  when: clickhouse_table_exists.stdout | trim == "0"
+  tags:
+    - database

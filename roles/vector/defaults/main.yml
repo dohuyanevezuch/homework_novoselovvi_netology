@@ -1,0 +1,16 @@
+---
+vector_repository_dependencies:
+  - ca-certificates
+  - curl
+  - gnupg
+
+vector_repository_setup_url: https://setup.vector.dev
+vector_repository_setup_path: /tmp/setup-vector-repository.sh
+vector_package_name: vector
+vector_config_path: /etc/vector/vector.yaml
+
+vector_clickhouse_host: >-
+  {{ hostvars[groups['clickhouse'][0]].ansible_host }}
+vector_clickhouse_port: 8123
+vector_clickhouse_database: default
+vector_clickhouse_table: vector_logs

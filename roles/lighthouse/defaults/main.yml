@@ -1,0 +1,11 @@
+---
+lighthouse_packages:
+  - nginx
+  - tar
+
+lighthouse_archive_url: https://github.com/VKCOM/lighthouse/archive/refs/heads/master.tar.gz
+lighthouse_archive_path: /tmp/lighthouse.tar.gz
+lighthouse_extract_path: /tmp/lighthouse
+lighthouse_root: /var/www/lighthouse
+lighthouse_server_name: _
+lighthouse_listen_port: 80

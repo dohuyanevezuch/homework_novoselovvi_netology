@@ -1,0 +1,21 @@
+---
+clickhouse_repository_dependencies:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+
+clickhouse_packages:
+  - clickhouse-server
+  - clickhouse-client
+
+clickhouse_key_url: https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key
+clickhouse_key_source_path: /tmp/clickhouse-repository-key.asc
+clickhouse_keyring_path: /usr/share/keyrings/clickhouse-keyring.gpg
+clickhouse_repository_url: https://packages.clickhouse.com/deb
+clickhouse_apt_architecture: >-
+  {{ ansible_architecture | replace('x86_64', 'amd64') }}
+
+clickhouse_listen_host: "0.0.0.0"
+clickhouse_database: default
+clickhouse_table: vector_logs

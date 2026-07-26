@@ -1,0 +1,20 @@
+---
+clickhouse:
+  hosts:
+    clickhouse-01:
+      ansible_host: 103.76.55.10
+
+vector:
+  hosts:
+    vector-01:
+      ansible_host: 89.169.175.65
+
+lighthouse:
+  hosts:
+    lighthouse-01:
+      ansible_host: 111.88.155.10
+
+all:
+  vars:
+    ansible_user: dohuyanevezuch
+    ansible_ssh_private_key_file: ~/.ssh/id_ed25519_YC

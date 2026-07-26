@@ -1,0 +1,25 @@
+sources:
+  demo_logs:
+    type: demo_logs
+    format: syslog
+    interval: 5
+
+transforms:
+  prepare_for_clickhouse:
+    type: remap
+    inputs:
+      - demo_logs
+    source: |
+      .message = to_string!(.message)
+      .timestamp = now()
+
+sinks:
+  clickhouse:
+    type: clickhouse
+    inputs:
+      - prepare_for_clickhouse
+    endpoint: "http://{{ vector_clickhouse_host }}:{{ vector_clickhouse_port }}"
+    database: "{{ vector_clickhouse_database }}"
+    table: "{{ vector_clickhouse_table }}"
+    date_time_best_effort: true
+    skip_unknown_fields: true
