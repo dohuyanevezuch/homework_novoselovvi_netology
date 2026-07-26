@@ -1,0 +1,43 @@
+---
+all:
+  vars:
+    ansible_user: dohuyanevezuch
+    ansible_ssh_private_key_file: ~/.ssh/id_ed25519_YC
+
+  children:
+    clickhouse:
+      hosts:
+        clickhouse-01:
+          ansible_host: 130.193.53.150
+
+      vars:
+        clickhouse_version: "latest"
+
+        clickhouse_listen_host:
+          - "0.0.0.0"
+        clickhouse_networks_default:
+          - "127.0.0.1"
+          - "::1"
+          - "103.76.55.189"
+
+        clickhouse_vector_database: logs
+        clickhouse_vector_table: vector_logs
+
+        clickhouse_dbs_custom:
+          - name: "{{ clickhouse_vector_database }}"
+            state: present
+
+    vector:
+      hosts:
+        vector-01:
+          ansible_host: 103.76.55.189
+      vars:
+        vector_clickhouse_host: "130.193.53.150"
+        vector_clickhouse_port: 8123
+        vector_clickhouse_database: logs
+        vector_clickhouse_table: vector_logs
+
+    lighthouse:
+      hosts:
+        lighthouse-01:
+          ansible_host: 111.88.157.240

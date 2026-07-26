@@ -1,0 +1,70 @@
+---
+- name: Установка и настройка ClickHouse
+  hosts: clickhouse
+  become: true
+
+  roles:
+    - role: clickhouse
+
+  post_tasks:
+    - name: Ожидание готовности ClickHouse
+      ansible.builtin.command:
+        argv:
+          - clickhouse-client
+          - --query
+          - SELECT 1
+      register: clickhouse_ready
+      changed_when: false
+      retries: 10
+      delay: 3
+      until:
+        - clickhouse_ready.rc == 0
+        - clickhouse_ready.stdout | trim == "1"
+
+    - name: Проверка существования таблицы Vector
+      ansible.builtin.command:
+        argv:
+          - clickhouse-client
+          - --query
+          - >-
+            EXISTS TABLE
+            {{ clickhouse_vector_database }}.{{ clickhouse_vector_table }}
+      register: vector_table_exists
+      changed_when: false
+
+    - name: Создание таблицы Vector
+      ansible.builtin.command:
+        argv:
+          - clickhouse-client
+          - --query
+          - >-
+            CREATE TABLE
+            {{ clickhouse_vector_database }}.{{ clickhouse_vector_table }}
+            (
+              message String,
+              timestamp DateTime DEFAULT now()
+            )
+            ENGINE = MergeTree
+            ORDER BY timestamp
+      when: vector_table_exists.stdout | trim == "0"
+
+- name: Установка и настройка Vector
+  hosts: vector
+  become: true
+
+  roles:
+    - role: vector
+
+- name: Установка и настройка Lighthouse
+  hosts: lighthouse
+  become: true
+
+  pre_tasks:
+    - name: Установка Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+  roles:
+    - role: lighthouse
