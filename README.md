@@ -178,3 +178,23 @@ terraform apply -replace='module.vm.yandex_compute_instance.vms["vm_1"]' -replac
 ![task4_pic2](./img/04/task4_pic2.png)
 
 ---
+
+## **Исправление**
+
+Для начала создадим Сервисный аккаунт, бакет, я БД вне terraform кода (чтоб при terraform destroy не убивалось все, что не должно трогаться). 
+
+![correction_pic1](./img/correction/correction_pic1.png)
+![correction_pic2](./img/correction/correction_pic2.png)
+![correction_pic3](./img/correction/correction_pic3.png)
+
+
+Создаем `backend.hcl` и описываем подключение к бакету
+
+
+Инициализируем и запускаем, запись появилась
+
+![correction_pic4](./img/correction/correction_pic4.png)
+
+Проверка Лока, меняем безабидный параметр label в VM и делаем `apply`, на подтверждении ничего не нажимаем и во втором терменале делаем `plan` - получаем:
+
+![correction_pic5](./img/correction/correction_pic5.png)
