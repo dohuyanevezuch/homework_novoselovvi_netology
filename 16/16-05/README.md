@@ -55,4 +55,25 @@
 ![pic9](./img/pic9.png)
 
 
+---
+
+### Исправление
+
+![pic10](./img/pic10.png)
+
+![pic11](./img/pic11.png)
+
+![pic12](./img/pic12.png)
+
+![pic13](./img/pic13.png)
+
+![pic14](./img/pic14.png)
+
+![pic15](./img/pic15.png)
+
+![pic16](./img/pic16.png)
+
+
+
+
  
