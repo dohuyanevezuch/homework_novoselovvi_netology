@@ -65,8 +65,6 @@
 
 ![pic12](./img/pic12.png)
 
-![pic13](./img/pic13.png)
-
 ![pic14](./img/pic14.png)
 
 ![pic15](./img/pic15.png)
